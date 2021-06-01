@@ -12,14 +12,14 @@ from bson.objectid import ObjectId
 def estudiante(request):
     client = MongoClient(settings.MONGO_CLI)
     db = client.monitoring_db
-    estudiante = db['estudiante']
+    estudiante = db['estudiantes']
     if request.method == "GET":
         result = []
         data = estudiante.find({})
         for dto in data:
             jsonData = {
                 'id': str(dto['_id']),
-                "variable": dto['estudiante'],
+                "estudiante": dto['estudiante'],
                 'threshold': dto['threshold']
             }
             result.append(jsonData)
@@ -40,7 +40,7 @@ def estudiante(request):
 def estudianteDetail(request, pk):
     client = MongoClient(settings.MONGO_CLI)
     db = client.monitoring_db
-    estudiante = db['estudiante']
+    estudiante = db['estudiantes']
     if request.method == "GET":
         data = estudiante.find({'_id': ObjectId(pk)})
         result = []
