@@ -296,7 +296,7 @@ def average(request, pk):
 
     if placeAv == "":
         for dto in place.find({'_id': ObjectId(pk)}):
-            for d in dto["nota"]:
+            for d in dto["measurements"]:
                 if d["variable"] == dataReceived["variable"]:
                     placeAv = dto["place"]
                     average = d["average"]
