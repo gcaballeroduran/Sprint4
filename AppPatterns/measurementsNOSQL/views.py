@@ -6,10 +6,10 @@ from rest_framework.parsers import JSONParser
 from django.conf import settings
 from bson.objectid import ObjectId
 
-# Create your views here.
+# Create your views here. 
 
 @api_view(["GET", "POST"])
-def variables(request):
+def estudiante(request):
     client = MongoClient(settings.MONGO_CLI)
     db = client.monitoring_db
     estudiante = db['estudiante']
@@ -37,7 +37,7 @@ def variables(request):
         return JsonResponse(respo, safe=False)
 
 @api_view(["GET", "POST"])
-def variablesDetail(request, pk):
+def estudianteDetail(request, pk):
     client = MongoClient(settings.MONGO_CLI)
     db = client.monitoring_db
     estudiante = db['estudiante']
