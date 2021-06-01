@@ -80,7 +80,7 @@ def places(request):
             jsonData = {
                 "id": str(dto['_id']),
                 "place": dto['place'],
-                'measurement': dto['measurement'],
+                'measurements': dto['measurements'],
             }
             result.append(jsonData)
         data = place.find({})
@@ -88,7 +88,7 @@ def places(request):
             jsonData = {
                 "id": str(dto['_id']),
                 "place": dto['place'],
-                'measurement': dto['measurement'],
+                'measurements': dto['measurements'],
             }
             result.append(jsonData)
         client.close()
@@ -96,7 +96,7 @@ def places(request):
     if request.method == "POST":
         data = JSONParser().parse(request)
         notas = []
-        data['measurement'] = notas
+        data['measurements'] = notas
         data['average'] = 0
         if data["critical"] == True:
             result = criticalPlace.insert(data)
@@ -122,7 +122,7 @@ def placeDetail(request, pk):
             jsonData = {
                 "id": str(dto['_id']),
                 "place": dto['place'],
-                'measurement': dto['measurement'],
+                'measurements': dto['measurements'],
             }
             result.append(jsonData)
         if result == []:
@@ -131,7 +131,7 @@ def placeDetail(request, pk):
                 jsonData = {
                     "id": str(dto['_id']),
                     "place": dto['place'],
-                    'measurement': dto['measurement'],
+                    'measurements': dto['measurements'],
                 }
                 result.append(jsonData)
         client.close()
@@ -147,7 +147,7 @@ def placeDetail(request, pk):
         }
 
         for dto in criticalPlace.find({'_id': ObjectId(pk)}):
-            for d in dto["measurement"]:
+            for d in dto["measurements"]:
                 if d["variable"] == data["variable"]:
                     d["values"].append(jsonData)
                     average = ((d["average"] * (len(d["values"])-1)) + data["value"]) / len(d["values"])
@@ -155,7 +155,7 @@ def placeDetail(request, pk):
                     d["average"] = average
                     result = criticalPlace.update(
                         {'_id': ObjectId(pk)},
-                        {'$set': {'measurement': dto["measurement"]}}
+                        {'$set': {'measurements': dto["measurements"]}}
                     )
 
                     respo = {
@@ -174,7 +174,7 @@ def placeDetail(request, pk):
             }
             result = criticalPlace.update(
                 {'_id': ObjectId(pk)},
-                {'$push': {'measurement': jsonDataNew}}
+                {'$push': {'measurements': jsonDataNew}}
             )
             respo = {
                 "MongoObjectID": str(result),
@@ -185,7 +185,7 @@ def placeDetail(request, pk):
 
 
         for dto in place.find({'_id': ObjectId(pk)}):
-            for d in dto["measurement"]:
+            for d in dto["measurements"]:
                 if d["variable"] == data["variable"]:
                     d["values"].append(jsonData)
                     #for val in d["values"]:
@@ -195,7 +195,7 @@ def placeDetail(request, pk):
                     d["average"] = average
                     result = place.update(
                         {'_id': ObjectId(pk)},
-                        {'$set': {'measurement': dto["measurement"]}}
+                        {'$set': {'measurements': dto["measurements"]}}
                     )
 
                     respo = {
@@ -214,7 +214,7 @@ def placeDetail(request, pk):
             }
             result = place.update(
                 {'_id': ObjectId(pk)},
-                {'$push': {'measurement': jsonDataNew}}
+                {'$push': {'measurements': jsonDataNew}}
             )
             respo = {
                 "MongoObjectID": str(result),
@@ -289,7 +289,7 @@ def average(request, pk):
 
     # Calculo de promedio
     for dto in criticalPlace.find({'_id': ObjectId(pk)}):
-        for d in dto["measurement"]:
+        for d in dto["measurements"]:
             if d["variable"] == dataReceived["variable"]:
                 placeAv = dto["place"]
                 average = d["average"]
