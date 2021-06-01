@@ -19,7 +19,7 @@ def estudiante(request):
         for dto in data:
             jsonData = {
                 'id': str(dto['_id']),
-                "estudiante": dto['estudiante'],
+                "variable": dto['variable'],
                 'threshold': dto['threshold']
             }
             result.append(jsonData)
