@@ -40,14 +40,14 @@ def estudiante(request):
 def estudianteDetail(request, pk):
     client = MongoClient(settings.MONGO_CLI)
     db = client.monitoring_db
-    estudiante = db['estudiante']
+    estudiante = db['variables']
     if request.method == "GET":
         data = estudiante.find({'_id': ObjectId(pk)})
         result = []
         for dto in data:
             jsonData ={
                 'id': str(dto['_id']),
-                "estudiante": dto['estudiante'],
+                "variable": dto['variable'],
                 'threshold': dto['threshold']
             }
             result.append(jsonData)
@@ -80,7 +80,7 @@ def places(request):
             jsonData = {
                 "id": str(dto['_id']),
                 "place": dto['place'],
-                'nota': dto['nota'],
+                'measurement': dto['measurement'],
             }
             result.append(jsonData)
         data = place.find({})
@@ -88,7 +88,7 @@ def places(request):
             jsonData = {
                 "id": str(dto['_id']),
                 "place": dto['place'],
-                'nota': dto['nota'],
+                'measurement': dto['measurement'],
             }
             result.append(jsonData)
         client.close()
@@ -96,7 +96,7 @@ def places(request):
     if request.method == "POST":
         data = JSONParser().parse(request)
         notas = []
-        data['nota'] = notas
+        data['measurement'] = notas
         data['average'] = 0
         if data["critical"] == True:
             result = criticalPlace.insert(data)
@@ -122,7 +122,7 @@ def placeDetail(request, pk):
             jsonData = {
                 "id": str(dto['_id']),
                 "place": dto['place'],
-                'nota': dto['nota'],
+                'measurement': dto['measurement'],
             }
             result.append(jsonData)
         if result == []:
@@ -131,7 +131,7 @@ def placeDetail(request, pk):
                 jsonData = {
                     "id": str(dto['_id']),
                     "place": dto['place'],
-                    'nota': dto['nota'],
+                    'measurement': dto['measurement'],
                 }
                 result.append(jsonData)
         client.close()
@@ -147,15 +147,15 @@ def placeDetail(request, pk):
         }
 
         for dto in criticalPlace.find({'_id': ObjectId(pk)}):
-            for d in dto["nota"]:
-                if d["estudiante"] == data["estudiante"]:
+            for d in dto["measurement"]:
+                if d["variable"] == data["variable"]:
                     d["values"].append(jsonData)
                     average = ((d["average"] * (len(d["values"])-1)) + data["value"]) / len(d["values"])
 
                     d["average"] = average
                     result = criticalPlace.update(
                         {'_id': ObjectId(pk)},
-                        {'$set': {'nota': dto["nota"]}}
+                        {'$set': {'measurement': dto["measurement"]}}
                     )
 
                     respo = {
@@ -166,7 +166,7 @@ def placeDetail(request, pk):
                     return JsonResponse(respo, safe=False)
 
             jsonDataNew = {
-                'estudiante': data["estudiante"],
+                'variable': data["variable"],
                 'values': [
                     jsonData
                 ],
@@ -174,7 +174,7 @@ def placeDetail(request, pk):
             }
             result = criticalPlace.update(
                 {'_id': ObjectId(pk)},
-                {'$push': {'nota': jsonDataNew}}
+                {'$push': {'measurement': jsonDataNew}}
             )
             respo = {
                 "MongoObjectID": str(result),
@@ -185,8 +185,8 @@ def placeDetail(request, pk):
 
 
         for dto in place.find({'_id': ObjectId(pk)}):
-            for d in dto["nota"]:
-                if d["estudiante"] == data["estudiante"]:
+            for d in dto["measurement"]:
+                if d["variable"] == data["variable"]:
                     d["values"].append(jsonData)
                     #for val in d["values"]:
                     #    average = average + val["value"]
@@ -195,7 +195,7 @@ def placeDetail(request, pk):
                     d["average"] = average
                     result = place.update(
                         {'_id': ObjectId(pk)},
-                        {'$set': {'nota': dto["nota"]}}
+                        {'$set': {'measurement': dto["measurement"]}}
                     )
 
                     respo = {
@@ -206,7 +206,7 @@ def placeDetail(request, pk):
                     return JsonResponse(respo, safe=False)
 
             jsonDataNew = {
-                'estudiante': data["estudiante"],
+                'variable': data["variable"],
                 'values': [
                     jsonData
                 ],
@@ -214,7 +214,7 @@ def placeDetail(request, pk):
             }
             result = place.update(
                 {'_id': ObjectId(pk)},
-                {'$push': {'nota': jsonDataNew}}
+                {'$push': {'measurement': jsonDataNew}}
             )
             respo = {
                 "MongoObjectID": str(result),
@@ -289,27 +289,27 @@ def average(request, pk):
 
     # Calculo de promedio
     for dto in criticalPlace.find({'_id': ObjectId(pk)}):
-        for d in dto["nota"]:
-            if d["estudiante"] == dataReceived["estudiante"]:
+        for d in dto["measurement"]:
+            if d["variable"] == dataReceived["variable"]:
                 placeAv = dto["place"]
                 average = d["average"]
 
     if placeAv == "":
         for dto in place.find({'_id': ObjectId(pk)}):
             for d in dto["nota"]:
-                if d["estudiante"] == dataReceived["estudiante"]:
+                if d["variable"] == dataReceived["variable"]:
                     placeAv = dto["place"]
                     average = d["average"]
 
     # Obtener nombre de la variable
-    estudiante = db['estudiante']
-    dataVar = estudiante.find({'_id': ObjectId(dataReceived["estudiante"])})
+    estudiante = db['variables']
+    dataVar = estudiante.find({'_id': ObjectId(dataReceived["variable"])})
     for dto in dataVar:
-        estudianteName = dto["estudiante"]
+        estudianteName = dto["variable"]
 
     jsonData = {
         "place": placeAv,
-        "estudiante": estudianteName,
+        "variable": estudianteName,
         "average": average
     }
 
